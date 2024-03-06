@@ -8,30 +8,32 @@
 include "console.iol"
 include "database.iol"
 include "rent.iol"
-include "runtime.iol"
+
+// Database driver can't be changed because we're using UUID as id type and
+// not all the Jolie supported database drivers support this datatype.
+type DatabaseParam {
+    username: string
+    password: string
+    host: string
+    name: string
+}
 
 type Params {
     location: string
-    proto : string {
+    proto: string {
         wsdl: string
     }
+    database: DatabaseParam
 }
 
 service Rent(p: Params) {
 
     init {
-        // Environment for database. Database driver can't be changed because we're
-        // using UUID as id type and not all the Jolie supported database drivers
-        // can support this datatype.
-        getenv@Runtime("DB_USERNAME")(db_username)
-        getenv@Runtime("DB_PASSWORD")(db_password)
-        getenv@Runtime("DB_HOST")(db_host)
-        getenv@Runtime("DB_NAME")(db_name)
         with (conn) {
-            .username = db_username;
-            .password = db_password;
-            .host = db_host;
-            .database = db_name;
+            .username = p.database.username;
+            .password = p.database.password;
+            .host = p.database.host;
+            .database = p.database.name;
             .driver = "postgresql"
         }
     }

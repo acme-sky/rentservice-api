@@ -15,6 +15,12 @@ Now you need to create a config file
     "proto": {
         "$": "soap",
         "wsdl": "<file.wsdl>"
+    },
+    "database": {
+        "username": "<username>",
+        "password": "<password>",
+        "host": "<host>",
+        "name": "<name>"
     }
 }
 ```
