@@ -8,7 +8,10 @@ type RentRequest: void {
 }
 
 type RentResponse: void {
-    .RentID:        string
+    .RentId?:        string
+    .Error?:         string
+
+    .Status:         string
 }
 
 interface RentInterface {

@@ -8,6 +8,7 @@
 include "console.iol"
 include "database.iol"
 include "rent.iol"
+include "time.iol"
 
 // Database driver can't be changed because we're using UUID as id type and
 // not all the Jolie supported database drivers support this datatype.
@@ -27,7 +28,6 @@ type Params {
 }
 
 service Rent(p: Params) {
-
     init {
         with (conn) {
             .username = p.database.username;
@@ -36,6 +36,15 @@ service Rent(p: Params) {
             .database = p.database.name;
             .driver = "postgresql"
         }
+
+
+        install(SQLException => {
+            println@Console("Error on database: \"" + SQLException.message + "\"")()
+        })
+
+        connect@Database(conn)(void)
+
+        println@Console("Server running...")()
     }
 
     inputPort RentPort {
@@ -44,20 +53,65 @@ service Rent(p: Params) {
         Interfaces: RentInterface
     }
 
+    execution: concurrent
+
     main {
-        install(SQLException => {
-            println@Console("Error on database: \"" + main.SQLException.message + "\"")()
-        })
-
-        connect@Database(conn)(void)
-
-        println@Console("Server running...")()
-
-        while (1) {
-            [BookRent(request)(response) {
+        BookRent(request)(response) {
+            scope(rent) {
                 println@Console("Received a new request...")()
-                response.RentID = "00000000-0000-0000-0000-000000000000"
-            }]
+
+                response.Status = "ERROR"
+                install(
+                    // This `ParseError` error type has a `string` content
+                    ParseError => 
+                        println@Console("Got an error: \"" + rent.ParseError + "\".")()
+                        response.Error = rent.ParseError,
+                    SQLException =>
+                        println@Console("Got an error: \"" + rent.SQLException.message + "\".")()
+                        response.Error = "SQL Exception",
+                    InvalidTimestamp =>
+                        println@Console("Got an error: \"Invalid Timestamp\".")()
+                        response.Error = "Invalid Timestamp"
+                )
+
+                if (request.CustomerName == "") {
+                    throw(ParseError, "Empty CustomerName")
+                } else if (request.CustomerSurname == "") {
+                    throw(ParseError, "Empty CustomerSurname")
+                } else if (request.PickupAddress == "") {
+                    throw(ParseError, "Empty PickupAddress")
+                } else if (request.PickupDate == "") {
+                    throw(ParseError, "Empty PickupDate")
+                } else if (request.Address == "") {
+                    throw(ParseError, "Empty Address")
+                }
+
+
+                // Used to verify the correctness
+                timestamp = request.PickupDate
+                timestamp.format = "yyyy-MM-dd'T'HH:mm:ss'Z'"
+                getTimestampFromString@Time(timestamp)()
+
+                updateRequest = "INSERT INTO reservation("+
+                                "customer_name, customer_surname, pickup_address, address, pickup_date, created_at)"+
+                                "VALUES(:customer_name, :customer_surname, :pickup_address, :address, '" + request.PickupDate + "', NOW())"
+                updateRequest.customer_name = request.CustomerName
+                updateRequest.customer_surname = request.CustomerSurname
+                updateRequest.pickup_address = request.PickupAddress
+                updateRequest.address = request.Address
+
+
+                update@Database(updateRequest)(ret)
+
+                if (ret == 1) {
+                    query@Database("SELECT id FROM reservation ORDER BY created_at DESC LIMIT 1")(queryResponse)
+                    response.RentId = queryResponse.row[0].id
+                } else {
+                    throw(SQLException)
+                }
+
+                response.Status = "OK"
+            }
         }
     }
 }
