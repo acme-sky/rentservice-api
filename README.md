@@ -49,3 +49,36 @@ A request can be:
    </soapenv:Body>
 </soapenv:Envelope>
 ```
+
+## Deploy with Docker compose
+
+First, build the local image
+
+```
+docker build -t acmesky-rentservice .
+```
+
+Then, fix `config.json` adding the right path `/etc/data` and database.host,
+which is the container name for PostgreSQL.
+
+```
+{
+    "location": "socket://localhost:8080",
+    "proto": {
+        "$": "soap",
+        "wsdl": "/etc/data/rent.wsdl"
+    },
+    "database": {
+        "username": "postgres",
+        "password": "postgres",
+        "host": "rent-postgres",
+        "name": "postgres"
+    }
+}
+```
+
+Finally, run
+
+```
+docker compose up
+```
