@@ -76,8 +76,6 @@ service Rent(p: Params) {
 
                 if (request.CustomerName == "") {
                     throw(ParseError, "Empty CustomerName")
-                } else if (request.CustomerSurname == "") {
-                    throw(ParseError, "Empty CustomerSurname")
                 } else if (request.PickupAddress == "") {
                     throw(ParseError, "Empty PickupAddress")
                 } else if (request.PickupDate == "") {
@@ -93,10 +91,9 @@ service Rent(p: Params) {
                 getTimestampFromString@Time(timestamp)()
 
                 updateRequest = "INSERT INTO reservation("+
-                                "customer_name, customer_surname, pickup_address, address, pickup_date, created_at)"+
-                                "VALUES(:customer_name, :customer_surname, :pickup_address, :address, '" + request.PickupDate + "', NOW())"
+                                "customer_name, pickup_address, address, pickup_date, created_at)"+
+                                "VALUES(:customer_name, :pickup_address, :address, '" + request.PickupDate + "', NOW())"
                 updateRequest.customer_name = request.CustomerName
-                updateRequest.customer_surname = request.CustomerSurname
                 updateRequest.pickup_address = request.PickupAddress
                 updateRequest.address = request.Address
 

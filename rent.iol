@@ -1,7 +1,6 @@
 
 type RentRequest: void {
     .CustomerName:    string
-    .CustomerSurname: string
     .PickupAddress:   string
     .PickupDate:      string
     .Address:         string
