@@ -25,5 +25,14 @@ services:
       - ./:/etc/data
     restart: unless-stopped
 
+  leonardoservice:
+    image: acmesky-rentleonardo
+    container_name: rent-leonardo
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./:/etc/data
+    restart: unless-stopped
+
 volumes:
   postgres-data:

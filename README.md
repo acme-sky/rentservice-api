@@ -76,6 +76,31 @@ which is the container name for PostgreSQL.
 }
 ```
 
+Now you should set up a webserver which returns the WSDL file. 
+
+- Copy static files to www directory
+
+```
+mkdir www
+cp rent.wsdl www
+```
+
+- Create a `config-leonardo.json` file.
+
+```
+{
+    "location": "<location>",
+    "documentDir": "/etc/data/www/"
+}
+```
+
+- Build the local image
+
+```
+docker build -t acmesky-rentleonardo -f Dockerfile-leonardo .
+```
+
+
 Finally, run
 
 ```

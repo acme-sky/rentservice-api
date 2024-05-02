@@ -1,0 +1,7 @@
+FROM jolielang/jolie
+
+EXPOSE 8081
+
+COPY leonardo.ol .
+
+CMD jolie --params /etc/data/config-leonardo.json leonardo.ol
