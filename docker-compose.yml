@@ -17,6 +17,9 @@ services:
   rentservice:
     image: acmesky-rentservice
     container_name: rent-api
+    networks:
+      - default
+      - acmesky
     depends_on:
       - postgres
     ports:
@@ -28,6 +31,8 @@ services:
   leonardoservice:
     image: acmesky-rentleonardo
     container_name: rent-leonardo
+    networks:
+      - acmesky
     ports:
       - "8081:8081"
     volumes:
@@ -36,3 +41,7 @@ services:
 
 volumes:
   postgres-data:
+
+networks:
+  acmesky:
+    external: true
