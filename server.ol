@@ -87,7 +87,7 @@ service Rent(p: Params) {
 
                 // Used to verify the correctness
                 timestamp = request.PickupDate
-                timestamp.format = "yyyy-MM-dd'T'HH:mm:ss'Z'"
+                timestamp.format = "dd/MM/yyyy HH:mm"
                 getTimestampFromString@Time(timestamp)()
 
                 updateRequest = "INSERT INTO reservation("+

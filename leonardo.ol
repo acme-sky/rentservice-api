@@ -45,6 +45,8 @@ service Leonardo(p: Params) {
                 s.regex = "\\?";
                 split@StringUtils( s )( s );
                 file.filename = p.documentDir + s.result[0];
+                file.format = "text"
+                format = "html"
 
                 readFile@File(file)(response)
             }
