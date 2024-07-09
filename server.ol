@@ -56,7 +56,7 @@ service Rent(p: Params) {
     execution: concurrent
 
     main {
-        BookRent(request)(response) {
+        [BookRent(request)(response) {
             scope(rent) {
                 println@Console("Received a new request...")()
 
@@ -109,6 +109,36 @@ service Rent(p: Params) {
 
                 response.Status = "OK"
             }
-        }
+        }]
+        [GetRentById(request)(response) {
+            scope(rent) {
+                println@Console("Received a new request...")()
+
+                response.Status = "ERROR"
+                install(
+                    // This `ParseError` error type has a `string` content
+                    ParseError => 
+                        println@Console("Got an error: \"" + rent.ParseError + "\".")()
+                        response.Error = rent.ParseError,
+                    SQLException =>
+                        println@Console("Got an error: \"" + rent.SQLException.message + "\".")()
+                        response.Error = "SQL Exception",
+                    TypeMismatch =>
+                        println@Console("Got an error: \"" + rent.TypeMismatch.message + "\".")()
+                        response.Error = "TypeMismatch"
+                )
+
+                queryRequest = "SELECT id, customer_name, pickup_address, address, pickup_date FROM reservation WHERE id='" + request.RentId +"'"
+
+                query@Database(queryRequest)(queryResponse)
+
+                response.Status = "OK"
+                response.RentId = queryResponse.row[0].id
+                response.CustomerName = queryResponse.row[0].customer_name
+                response.PickupAddress = queryResponse.row[0].pickup_address
+                response.Address = queryResponse.row[0].address
+                response.PickupDate = queryResponse.row[0].pickup_date
+            }
+        }]
     }
 }

@@ -43,7 +43,7 @@ A request can be:
          <CustomerName>Mario Rossi</CustomerName>
          <PickupAddress>Via Zamboni 33, Bologna</PickupAddress>
          <Address>Mura Anteo Zamboni 7, Bologna</Address>
-         <PickupDate>2024-03-02T13:10:00Z</PickupDate>
+         <PickupDate>02/01/2006 15:04</PickupDate>
       </rent:BookRent>
    </soapenv:Body>
 </soapenv:Envelope>
